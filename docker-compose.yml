@@ -177,6 +177,8 @@ services:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - docker-in-docker:/certs/client
         - ./php-worker/supervisord.d:/etc/supervisord.d
+        - ~/.ssh:/root/.ssh
+        - ~/.ssh:/home/laradock/.ssh
       extra_hosts:
         - "dockerhost:${DOCKER_HOST_IP}"
       ports:
@@ -414,8 +416,10 @@ services:
       depends_on:
         - php-fpm
       networks:
-        - frontend
-        - backend
+        frontend:
+        backend:
+            aliases:
+              - ${NGINX_ALIAS}
 
 ### OpenResty Server #########################################
     openresty:
@@ -1240,6 +1244,8 @@ services:
         context: ./laravel-echo-server
         args:
           - CHANGE_SOURCE=${CHANGE_SOURCE}
+      environment: 
+        - TZ=${WORKSPACE_TIMEZONE}
       volumes:
         - ./laravel-echo-server/laravel-echo-server.json:/app/laravel-echo-server.json:ro
       ports:
